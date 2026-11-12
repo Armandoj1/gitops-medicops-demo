@@ -1,0 +1,3 @@
+data:
+  timeout.reconciliation: 15s
+  timeout.reconciliation.jitter: 0s

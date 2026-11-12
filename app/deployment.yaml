@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medicops-estado
+  labels:
+    app: medicops-estado
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: medicops-estado
+  template:
+    metadata:
+      labels:
+        app: medicops-estado
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          env:
+            - name: VERSION
+              value: "1.0"
+            - name: COLOR
+              value: "#0f766e"
+            - name: MENSAJE
+              value: "Todos los servicios operando con normalidad"
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat > /usr/share/nginx/html/index.html <<EOF
+              <!doctype html>
+              <html lang="es">
+              <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="3">
+              <title>MedicOps · Estado v$VERSION</title>
+              <style>
+              body{margin:0;min-height:100vh;display:grid;place-items:center;background:$COLOR;color:#fff;font-family:system-ui,sans-serif;text-align:center}
+              h1{font-size:4rem;margin:0}
+              .v{font-size:9rem;font-weight:800;margin:.2em 0}
+              p{font-size:1.6rem;margin:.3em}
+              small{opacity:.8;font-size:1.1rem}
+              </style>
+              </head>
+              <body>
+              <main>
+              <h1>MedicOps · Estado del servicio</h1>
+              <div class="v">v$VERSION</div>
+              <p>$MENSAJE</p>
+              <small>Atendido por el pod $HOSTNAME</small>
+              </main>
+              </body>
+              </html>
+              EOF
+              exec nginx -g 'daemon off;'
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
