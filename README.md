@@ -22,7 +22,7 @@ Una página de estado de MedicOps corre en un Kubernetes local. **Nadie la despl
 
 Docker Desktop encendido, `kubectl` y [`kind`](https://kind.sigs.k8s.io/).
 
-## Preparar (una vez, unos 3 minutos, antes de exponer)
+## Preparar (antes de exponer: la primera vez tarda unos 10 minutos porque descarga imágenes; después, 1 minuto)
 
 ```powershell
 .\demo\1-preparar.ps1   # crea el clúster, instala Argo CD y registra la aplicación
@@ -32,11 +32,11 @@ Docker Desktop encendido, `kubectl` y [`kind`](https://kind.sigs.k8s.io/).
 ## Guion de la demo
 
 **Acto 1 · Un cambio en Git es un despliegue.** En GitHub, editar `app/deployment.yaml`: `VERSION` a `"2.0"`, `COLOR` a
-`"#7c3aed"`, `MENSAJE` a `"Nueva versión desplegada desde Git"` y `replicas` a `4`. Commit. En unos 15 segundos Argo CD
-marca *OutOfSync*, sincroniza y la página cambia de color sola; en Argo CD se ven los 4 pods.
+`"#7c3aed"`, `MENSAJE` a `"Nueva versión desplegada desde Git"` y `replicas` a `4`. Commit. En unos 30 segundos Argo CD
+detecta el commit, sincroniza y la página cambia de color sola; en Argo CD se ven los 4 pods.
 
 **Acto 2 · Alguien toca producción a mano.** `.\demo\3-sabotear.ps1` borra el deployment directamente en el clúster.
-Argo CD detecta que el clúster ya no coincide con Git y lo vuelve a crear en segundos.
+Argo CD detecta que el clúster ya no coincide con Git y lo vuelve a crear en unos 3 segundos.
 
 **Acto 3 · Rollback con Git.** La versión 2 “salió mal”:
 
@@ -46,7 +46,7 @@ git revert --no-edit HEAD
 git push
 ```
 
-En unos 15 segundos la página vuelve a la versión 1. El historial de Git queda como bitácora de quién cambió qué y cuándo.
+En unos 35 segundos la página vuelve a la versión 1. El historial de Git queda como bitácora de quién cambió qué y cuándo.
 
 ¿Afán en vivo? El botón **Refresh** de Argo CD revisa Git en el momento.
 
