@@ -5,7 +5,7 @@ metadata:
   labels:
     app: medicops-estado
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: medicops-estado
@@ -19,11 +19,11 @@ spec:
           image: nginx:1.27-alpine
           env:
             - name: VERSION
-              value: "1.0"
+              value: "2.0"
             - name: COLOR
-              value: "#0f766e"
+              value: "#7c3aed"
             - name: MENSAJE
-              value: "Todos los servicios operando con normalidad"
+              value: "Nueva version desplegada desde Git"
           command: ["/bin/sh", "-c"]
           args:
             - |
