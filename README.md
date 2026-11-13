@@ -29,6 +29,15 @@ Docker Desktop encendido, `kubectl` y [`kind`](https://kind.sigs.k8s.io/).
 .\demo\2-abrir.ps1      # abre la página, Argo CD y el YAML en GitHub; copia la clave de admin al portapapeles
 ```
 
+## Presentar la demo (forma fácil)
+
+```powershell
+.\demo\presentar.ps1
+```
+
+Abre las pestañas, copia la clave de Argo CD y va acto por acto con Enter: dice qué hacer, qué decir y cronometra cada
+cambio. Si en el acto 1 falla GitHub en el navegador, escribir `B` y el commit se hace desde la terminal.
+
 ## Guion de la demo
 
 **Acto 1 · Un cambio en Git es un despliegue.** En GitHub, editar `app/deployment.yaml`: `VERSION` a `"2.0"`, `COLOR` a
