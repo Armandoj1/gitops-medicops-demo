@@ -32,17 +32,33 @@ spec:
               <html lang="es">
               <head>
               <meta charset="utf-8">
-              <meta http-equiv="refresh" content="3">
               <title>MedicOps · Estado v$VERSION</title>
+              <script>
+              setInterval(function () {
+                fetch('/', { cache: 'no-store' })
+                  .then(function (r) { if (!r.ok) throw new Error(); return r.text(); })
+                  .then(function (t) {
+                    var d = new DOMParser().parseFromString(t, 'text/html');
+                    document.title = d.title;
+                    document.body.setAttribute('style', d.body.getAttribute('style'));
+                    document.body.innerHTML = d.body.innerHTML;
+                  })
+                  .catch(function () {
+                    document.title = 'MedicOps · Servicio caído';
+                    document.body.setAttribute('style', 'background:#b91c1c');
+                    document.body.innerHTML = '<main><h1>MedicOps · Estado del servicio</h1><div class="v">CAÍDO</div><p>Ningún pod responde</p><small>Reintentando cada 2 segundos...</small></main>';
+                  });
+              }, 2000);
+              </script>
               <style>
-              body{margin:0;min-height:100vh;display:grid;place-items:center;background:$COLOR;color:#fff;font-family:system-ui,sans-serif;text-align:center}
+              body{margin:0;min-height:100vh;display:grid;place-items:center;color:#fff;font-family:system-ui,sans-serif;text-align:center}
               h1{font-size:4rem;margin:0}
               .v{font-size:9rem;font-weight:800;margin:.2em 0}
               p{font-size:1.6rem;margin:.3em}
               small{opacity:.8;font-size:1.1rem}
               </style>
               </head>
-              <body>
+              <body style="background:$COLOR">
               <main>
               <h1>MedicOps · Estado del servicio</h1>
               <div class="v">v$VERSION</div>
