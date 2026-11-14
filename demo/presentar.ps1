@@ -71,14 +71,44 @@ Titulo 'DEMO GITOPS - preparando'
 kubectl config use-context kind-gitops-demo 2>$null | Out-Null
 docker info --format '{{.ServerVersion}}' 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    Linea 'Docker Desktop esta apagado. Abrelo, espera a que diga "Engine running" y vuelve a correr esto.' 'Red'
-    exit 1
+    Linea 'Docker Desktop esta apagado: lo enciendo (tarda menos de un minuto)...' 'Yellow'
+    $docker = Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'
+    if (Test-Path $docker) { Start-Process $docker }
+    $limite = (Get-Date).AddMinutes(4)
+    do {
+        Start-Sleep -Seconds 5
+        docker info --format '{{.ServerVersion}}' 2>&1 | Out-Null
+    } until ($LASTEXITCODE -eq 0 -or (Get-Date) -gt $limite)
+    if ($LASTEXITCODE -ne 0) { Linea 'Docker no arranco. Abre Docker Desktop a mano y vuelve a correr esto.' 'Red'; exit 1 }
+    Start-Sleep -Seconds 10
+}
+$kind = (Get-Command kind -ErrorAction SilentlyContinue).Source
+if (-not $kind) { $kind = Join-Path $HOME '.local\bin\kind.exe' }
+$existe = (Test-Path $kind) -and (@(& $kind get clusters 2>$null) -contains 'gitops-demo')
+if ($existe) {
+    Linea 'Despertando el cluster...'
+    $limite = (Get-Date).AddMinutes(2)
+    do {
+        kubectl get --raw /readyz 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) { break }
+        Start-Sleep -Seconds 3
+    } until ((Get-Date) -gt $limite)
+    $limite = (Get-Date).AddMinutes(2)
+    while ((PodsListos) -lt 1 -and (Get-Date) -lt $limite) { Start-Sleep -Seconds 3 }
 }
 if ((PodsListos) -lt 1) {
     Linea 'El cluster no esta listo: lo preparo ahora (1 minuto, o 10 si es la primera vez)...' 'Yellow'
     & (Join-Path $PSScriptRoot '1-preparar.ps1')
     if ($LASTEXITCODE -ne 0) { exit 1 }
 }
+
+$limite = (Get-Date).AddMinutes(4)
+while ((curl.exe -s -o NUL -w '%{http_code}' --max-time 2 $pagina) -ne '200' -or (curl.exe -s -o NUL -w '%{http_code}' --max-time 2 'http://localhost:8081') -ne '200') {
+    if ((Get-Date) -gt $limite) { Linea 'La pagina o Argo CD no responden. Corre demo\1-preparar.ps1' 'Red'; exit 1 }
+    Write-Host -NoNewline "`r  Esperando a que la pagina y Argo CD respondan (normal si Docker acaba de arrancar)...   "
+    Start-Sleep -Seconds 3
+}
+Write-Host ''
 
 git -C $raiz pull --quiet 2>&1 | Out-Null
 $version = VersionPagina

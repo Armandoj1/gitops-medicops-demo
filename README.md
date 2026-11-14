@@ -29,6 +29,8 @@ Docker Desktop encendido, `kubectl` y [`kind`](https://kind.sigs.k8s.io/).
 .\demo\2-abrir.ps1      # abre la página, Argo CD y el YAML en GitHub; copia la clave de admin al portapapeles
 ```
 
+Guía completa para exponer, con el estado, el guion y qué hacer si algo falla: [GUIA-PRACTICA.md](GUIA-PRACTICA.md).
+
 ## Presentar la demo (forma fácil)
 
 ```powershell
